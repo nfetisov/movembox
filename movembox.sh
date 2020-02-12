@@ -86,7 +86,7 @@ then
             zmprov < $NAMA_FILE
             ldapmodify -f $LDIF_FILE -x -H $LDAP_MASTER_URL -D cn=config -w $ZIMBRA_LDAP_PASSWORD
         else
-            echo "Chyba, soubor $LDIF_FILE neexistuje."
+            echo "Error, el archivo $LDIF_FILE no existe."
             exit 255
         fi
 else
