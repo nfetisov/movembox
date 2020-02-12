@@ -110,10 +110,10 @@ echo "Cambiar el nombre de la cuenta anterior a old_$ACCOUNT1..."
 # renombrar el viejo
 zmprov renameAccount $ACCOUNT1 old_$ACCOUNT1
 
-echo "Uzavření starého účtu old_$ACCOUNT1..."
+echo "Cerrar cuenta antigua old_$ACCOUNT1..."
 zmprov ma old_$ACCOUNT1  zimbraAccountStatus closed
 
-echo "Cerrar cuenta antigua old_ $ACCOUNT1 ..."
+echo "Renombrar cuenta antigua old_ $ACCOUNT1 ..."
 # renombrar nuevo
 zmprov renameAccount $TEMPACCOUNT $ACCOUNT1
 
