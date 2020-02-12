@@ -7,7 +7,7 @@ echo -n "Ingrese la cuenta (correo electrónico) que desea mover: "; read ACCOUN
 zimbraMailHost=`zmprov -l ga $ACCOUNT1 | grep zimbraMailHost`
 test=${zimbraMailHost:0:14}
 if [ "$test" != "zimbraMailHost" ]; then
-echo "Účet $ACCOUNT1 neexistuje!"
+echo "¡La cuenta $ACCOUNT1 no existe!"
 exit 255;
 fi
 
