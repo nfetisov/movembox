@@ -1,9 +1,9 @@
-﻿#!/bin/bash
+#!/bin/bash
 
-echo "Transfer mezi mailboxservery. v.0.1"
+echo "Transferencia entre buzones. v.0.1"
 echo "RUN AS ZIMBRA USER!"
 
-echo -n "Zadejte účet (email), který chcete přesunout: "; read ACCOUNT1
+echo -n "Ingrese la cuenta (correo electrónico) que desea mover: "; read ACCOUNT1
 zimbraMailHost=`zmprov -l ga $ACCOUNT1 | grep zimbraMailHost`
 test=${zimbraMailHost:0:14}
 if [ "$test" != "zimbraMailHost" ]; then
@@ -12,26 +12,26 @@ exit 255;
 fi
 
 SERVER1=${zimbraMailHost:16}
-echo "Zdrojový server (aktuální umístění): $SERVER1"
+echo "Servidor de origen (ubicación actual): $SERVER1"
 
-echo -n "Zadejte cílový server: "; read SERVER2
+echo -n "Por favor, introduzca un servidor destino: "; read SERVER2
 if [ $SERVER1 == $SERVER2 ]; then
-echo "Zdrojový a cílový server nemůže být stejný!"
+echo "¡Los servidores de origen y destino no pueden ser el mismo!"
 exit 255;
 fi
 
-echo -n "Zadejte dočasný adresář pro umístění dat: "; read TEMPDIR
+echo -n "Ingrese un directorio temporal para la ubicación de datos: "; read TEMPDIR
 if [ ! -d $TEMPDIR ]; then
-echo "Adresář $TEMPDIR neexistuje!"
+echo "¡El directorio $TEMPDIR no existe!"
 exit 255;
 fi
 
-# vytvoreni noveho uctu
-echo "Vytvářím dočasný účet na serveru $SERVER2..."
+# creando una nueva cuenta
+echo "Se está creando una cuenta temporal en el servidor $SERVER2..."
 TEMPACCOUNT="temp_$ACCOUNT1"
 
-# doplnění hesla a dalších věcí
-echo "Kopíruji nastavení ze starého účtu..."
+# contraseña y otras cosas
+echo "Copiando la configuración de la cuenta anterior..."
 
 NAMA_FILE="$TEMPDIR/zcs-acc-add.zmp"
 LDIF_FILE="$TEMPDIR/zcs-acc-mod.ldif"
@@ -62,7 +62,7 @@ sn=`/opt/zimbra/bin/ldapsearch -H $LDAP_MASTER_URL -w $ZIMBRA_LDAP_PASSWORD -D u
 
 
 if [ $ACC = "admin" ] || [ $ACC = "wiki" ] || [ $ACC = "galsync" ] || [ $ACC = "ham" ] || [ $ACC = "spam" ]; then
-    echo "Nelze přesouvat systémové účty!"
+    echo "¡No se pueden mover las cuentas del sistema!"
     exit 255
 else
     echo "createAccount $TEMPACCOUNT XXXccc123wQ displayName '$displayName' givenName '$givenName' sn '$sn' initials '$initials' zimbraPasswordMustChange FALSE zimbraMailHost $SERVER2" >> $NAMA_FILE
@@ -90,33 +90,32 @@ then
             exit 255
         fi
 else
-    echo "Chyba, soubor $NAMA_FILE neexistuje."
+    echo "Error, el archivo $NAMA_FILE no existe."
     exit 255
 fi
 
-echo "Dočasný účet vytvořen."
+echo "Cuenta temporal creada."
 
-echo "Zahajuji přesun dat."
+echo "Iniciando la transferencia de datos."
 
-echo "Zálohování ze starého účtu $ACCOUNT1 na serveru $SERVER1"
+echo "Copia de seguridad de $ACCOUNT1 anterior en el servidor $SERVER1"
 ZMBOX=/opt/zimbra/bin/zmmailbox
 DATE=`date +"%Y%m%d%H%M%S"`
 $ZMBOX -z -m $ACCOUNT getRestURL "//?fmt=tgz" > $TEMPDIR/$ACCOUNT1.$DATE.tar.gz
 
-echo "Obnovuji data do dočasného $TEMPACCOUNT účtu na serveru $SERVER2"
+echo "Restaurar datos a la cuenta temporal $TEMPACCOUNT del servidor $SERVER2"
 $ZMBOX -z -m $TEMPACCOUNT postRestURL "//?fmt=tgz&resolve=reset" $TEMPDIR/$ACCOUNT1.$DATE.tar.gz
 
-echo "Přejmenování starého účtu na old_$ACCOUNT1..."
-# prejmenovani stareho
+echo "Cambiar el nombre de la cuenta anterior a old_$ACCOUNT1..."
+# renombrar el viejo
 zmprov renameAccount $ACCOUNT1 old_$ACCOUNT1
 
 echo "Uzavření starého účtu old_$ACCOUNT1..."
 zmprov ma old_$ACCOUNT1  zimbraAccountStatus closed
 
-echo "Přejmenování dočasného účtu na $ACCOUNT1..."
-# prejmenovani noveho
+echo "Cerrar cuenta antigua old_ $ACCOUNT1 ..."
+# renombrar nuevo
 zmprov renameAccount $TEMPACCOUNT $ACCOUNT1
 
-echo "HOTOVO."
+echo "HECHO."
 exit
-
